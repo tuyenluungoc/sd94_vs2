@@ -8,6 +8,7 @@ import org.example.sd_94vs1.entity.*;
 import org.example.sd_94vs1.entity.oder.Order;
 import org.example.sd_94vs1.entity.product.*;
 import org.example.sd_94vs1.exception.ResourceNotFoundException;
+import org.example.sd_94vs1.model.enums.UserRole;
 import org.example.sd_94vs1.model.request.UpsertReviewRequest;
 import org.example.sd_94vs1.repository.Product.DetailedProductRepository;
 import org.example.sd_94vs1.repository.Product.ProductRepository;
@@ -525,114 +526,89 @@ public String thanhCong(Model model, HttpServletRequest request, RedirectAttribu
     }
 
     @GetMapping("/chatus")
-    public String redirectToUserChat(HttpServletRequest request) {
-        // Lấy userCode từ session
-        User currentUser = (User) request.getSession().getAttribute("currentUser");
+    public String redirectToChatForUser(HttpServletRequest request, RedirectAttributes redirectAttributes) {
+        User user = (User) request.getSession().getAttribute("currentUser");
 
-        if (currentUser == null) {
-            // Nếu người dùng chưa đăng nhập, chuyển hướng đến trang đăng nhập
+        // Kiểm tra đăng nhập
+        if (user == null) {
+            redirectAttributes.addFlashAttribute("error", "Vui lòng đăng nhập để sử dụng tính năng này");
             return "redirect:/dang-nhap";
         }
 
-        // Nếu đã đăng nhập, chuyển hướng tới trang chat của người dùng
-        return "redirect:/chatus/" + currentUser.getUserCode();
+        // Lấy user_code và chuyển hướng
+        String userCode = user.getUserCode();
+        return "redirect:/chatus/" + userCode;
     }
 
+    @GetMapping("/admin/chatus")
+    public String redirectToChatForAdmin(HttpServletRequest request, RedirectAttributes redirectAttributes) {
+        User user = (User) request.getSession().getAttribute("currentUser");
 
-    // Trang chat chính
-    @GetMapping("/chatus/{userCode}")
-    public String showChatPage(@PathVariable("userCode") String userCode, HttpServletRequest request, Model model) {
-        // Lấy userCode từ session
-        User currentUser = (User) request.getSession().getAttribute("currentUser");
-
-        // Nếu chưa đăng nhập, chuyển hướng đến trang đăng nhập
-        if (currentUser == null) {
+        // Kiểm tra đăng nhập
+        if (user == null) {
+            redirectAttributes.addFlashAttribute("error", "Vui lòng đăng nhập để sử dụng tính năng này");
             return "redirect:/dang-nhap";
         }
 
-        // Kiểm tra nếu userCode trong URL không trùng với userCode trong session
-        if (!currentUser.getUserCode().equals(userCode)) {
-            return "redirect:/dang-nhap";  // Chuyển hướng nếu không đúng
+        // Kiểm tra vai trò
+        if (!user.getRole().equals(UserRole.ADMIN)) {
+            redirectAttributes.addFlashAttribute("error", "Bạn không có quyền truy cập vào trang này");
+            return "redirect:/";
         }
 
-        // Thêm currentUser vào model để Thymeleaf sử dụng
-        model.addAttribute("currentUser", currentUser);
-
-        // Lấy danh sách tin nhắn của người dùng
-        List<org.example.sd_94vs1.entity.Message> messages = messageService.getMessagesByUser(userCode);
-        model.addAttribute("messages", messages);
-
-        return "web/chatus";  // Trang chat
+        // Lấy user_code và chuyển hướng
+        String userCode = user.getUserCode();
+        return "redirect:/admin/chatus/" + userCode;
     }
 
 
+    @GetMapping("/chatus/{user_code}")
+    public String chatForUser(
+            @PathVariable String user_code,
+            HttpServletRequest request,
+            RedirectAttributes redirectAttributes) {
+        User user = (User) request.getSession().getAttribute("currentUser");
 
-    @Autowired
-    private SimpMessagingTemplate simpMessagingTemplate; // Đảm bảo đã inject SimpMessagingTemplate
-
-    @PostMapping("/send/{userCode}")
-    public String sendMessage(@RequestParam("content") String content,
-                              @PathVariable("userCode") String userCode,
-                              HttpServletRequest request) {
-        // Lấy thông tin người dùng hiện tại từ session
-        User currentUser = (User) request.getSession().getAttribute("currentUser");
-
-        // Kiểm tra nếu người dùng chưa đăng nhập
-        if (currentUser == null) {
-            return "redirect:/dang-nhap";  // Chuyển hướng tới trang đăng nhập nếu chưa đăng nhập
+        // Kiểm tra đăng nhập
+        if (user == null) {
+            redirectAttributes.addFlashAttribute("error", "Vui lòng đăng nhập để sử dụng tính năng này");
+            return "redirect:/dang-nhap";
         }
 
-        // Kiểm tra nếu userCode trong URL không trùng với userCode trong session
-        if (!currentUser.getUserCode().equals(userCode)) {
-            return "redirect:/dang-nhap";  // Chuyển hướng nếu userCode không đúng
+        // Kiểm tra user_code
+        if (!user.getUserCode().equals(user_code)) {
+            redirectAttributes.addFlashAttribute("error", "Bạn không có quyền truy cập vào trang này");
+            return "redirect:/";
         }
 
-        // Lấy danh sách tất cả admin từ service
-        List<User> admins = messageService.getAdmins();
-
-        // Gửi tin nhắn tới tất cả các admin và lưu tin nhắn vào cơ sở dữ liệu
-        for (User admin : admins) {
-            // Lưu tin nhắn vào cơ sở dữ liệu
-            messageService.saveMessage(currentUser.getUserCode(), admin.getUserCode(), content);
-
-            // Gửi tin nhắn đến tất cả admin qua WebSocket
-            simpMessagingTemplate.convertAndSend("/topic/admins", content); // Gửi tin nhắn đến tất cả admin
-        }
-
-        // Sau khi gửi tin nhắn, chuyển hướng lại trang chat của người dùng
-        return "redirect:/chatus/" + userCode; // Quay lại trang chat của người dùng
+        return "web/chatus";
     }
 
+    @GetMapping("/admin/chatus/{user_code}")
+    public String chatForAdmin(
+            @PathVariable String user_code,
+            HttpServletRequest request,
+            RedirectAttributes redirectAttributes) {
+        User user = (User) request.getSession().getAttribute("currentUser");
 
-
-
-
-
-    // Xem tất cả người dùng đã tham gia chat
-    @GetMapping("/users")
-    public String getUsersWithMessages(HttpServletRequest request, Model model) {
-        // Lấy userCode từ session
-        User currentUser = (User) request.getSession().getAttribute("currentUser");
-        if (currentUser == null) {
-            return "redirect:/dang-nhap"; // Nếu chưa đăng nhập, chuyển hướng đến trang đăng nhập
+        // Kiểm tra đăng nhập
+        if (user == null) {
+            redirectAttributes.addFlashAttribute("error", "Vui lòng đăng nhập để sử dụng tính năng này");
+            return "redirect:/dang-nhap";
         }
 
-        List<User> users = messageService.getUsersWithMessagesIncludingReceivers();
-        model.addAttribute("users", users);
-
-        return "user_list"; // Trang danh sách người dùng
-    }
-
-    // Đánh dấu tin nhắn là đã đọc
-    @PostMapping("/read/{messageId}")
-    public String markMessageAsRead(@PathVariable("messageId") Long messageId, HttpServletRequest request) {
-        User currentUser = (User) request.getSession().getAttribute("currentUser");
-        if (currentUser == null) {
-            return "redirect:/dang-nhap"; // Nếu chưa đăng nhập, chuyển hướng đến trang đăng nhập
+        // Kiểm tra vai trò
+        if (!user.getRole().equals(UserRole.ADMIN)) {
+            redirectAttributes.addFlashAttribute("error", "Bạn không có quyền truy cập vào trang này");
+            return "redirect:/";
         }
 
-        messageService.markMessageAsRead(messageId);
+        // Kiểm tra user_code
+        if (!user.getUserCode().equals(user_code)) {
+            redirectAttributes.addFlashAttribute("error", "Bạn không có quyền truy cập vào trang này");
+            return "redirect:/";
+        }
 
-        return "redirect:/chat"; // Quay lại trang chat sau khi đánh dấu là đã đọc
+        return "admin/chatus";
     }
 }

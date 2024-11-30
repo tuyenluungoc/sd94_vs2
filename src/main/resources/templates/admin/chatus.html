@@ -1,116 +1,73 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="en" xmlns:th="https://www.thymeleaf.org"
+      th:replace="~{admin/layout/layout :: layout(~{:: title}, ~{:: #css}, ~{:: .content-wrapper}, ~{:: #js})}">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Chat với người dùng - Admin</title>
-  <script
-          src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.1.4/sockjs.min.js"></script>
-  <script
-          src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f4f4f4;
-      margin: 0;
-      padding: 0;
-    }
-    .chat-container {
-      width: 70%;
-      margin: 20px auto;
-      background-color: white;
-      padding: 20px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    }
-    .message-list {
-      max-height: 300px;
-      overflow-y: auto;
-      border-bottom: 1px solid #ddd;
-      padding-bottom: 10px;
-    }
-    .message {
-      margin: 10px 0;
-    }
-    .message p {
-      margin: 0;
-    }
-    .input-group {
-      display: flex;
-      gap: 10px;
-      margin-top: 20px;
-    }
-    .input-group input, .input-group button {
-      padding: 10px;
-      border: 1px solid #ddd;
-      border-radius: 5px;
-    }
-    .input-group button {
-      cursor: pointer;
-      background-color: #28a745;
-      color: white;
-    }
-  </style>
+  <title>Chat - Admin</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.1.4/sockjs.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+
 </head>
 <body>
-<div class="chat-container">
-  <h2>Chat với người dùng - Admin</h2>
+<div class="content-wrapper">
+  <h2>Chat with User</h2>
+  <div id="messageArea" class="message-container"></div>
+  <form id="messageForm">
+    <input type="text" id="message" placeholder="Type a message..." />
+    <button type="submit">Send</button>
+  </form>
 
-  <!-- Hiển thị danh sách tin nhắn nhận từ người dùng -->
-  <div class="message-list" id="messageList">
-    <!-- Tin nhắn từ người dùng sẽ được thêm vào đây -->
-  </div>
-
-  <!-- Form trả lời tin nhắn -->
-  <div class="input-group">
-    <input type="text" id="responseMessage" placeholder="Nhập tin nhắn trả lời..." />
-    <button onclick="sendResponse()">Gửi</button>
-  </div>
 </div>
+<th:block id="js">
+  <script>
+    var socket = new SockJS('/ws');
+    var stompClient = Stomp.over(socket);
+    var messageInput = document.querySelector('#message');
+    var messageArea = document.querySelector('#messageArea');
+    var username = 'admin'; // Admin vẫn là người quản lý
 
-<script>
-  // Tạo kết nối WebSocket tới server
-  var socket = new SockJS('/chatus'); // WebSocket endpoint
-  var stompClient = Stomp.over(socket);
+    stompClient.connect({}, function (frame) {
+      console.log('Connected: ' + frame);
+      stompClient.subscribe('/topic/public', function (messageOutput) {
+        var message = JSON.parse(messageOutput.body);
+        displayMessage(message);
+      });
 
-  // Kết nối WebSocket
-  stompClient.connect({}, function(frame) {
-    console.log('Connected: ' + frame);
-
-    // Đăng ký để nhận tin nhắn từ người dùng
-    stompClient.subscribe('/topic/users', function(messageOutput) {
-      // Khi nhận được tin nhắn, hiển thị nó trên giao diện admin
-      var parsedMessage = JSON.parse(messageOutput.body); // Giả sử tin nhắn là JSON
-      showMessage(parsedMessage.senderCode + ": " + parsedMessage.content);
+      // Gửi thông báo admin tham gia chat
+      stompClient.send("/app/chat.addUser", {}, JSON.stringify({sender: username, type: 'JOIN'}));
+      // Chỉ gửi tin nhắn khi admin join, tránh tin nhắn null
+      displayMessage({sender: username, content: "đã join vào hội thoại", type: 'INFO'});
     });
-  });
 
-  // Hàm hiển thị tin nhắn
-  function showMessage(message) {
-    var messageList = document.getElementById('messageList');
-    var messageElement = document.createElement('div');
-    messageElement.classList.add('message');
-    messageElement.innerHTML = '<p>' + message + '</p>';
-    messageList.appendChild(messageElement);
-    messageList.scrollTop = messageList.scrollHeight; // Cuộn xuống tin nhắn mới nhất
-  }
-
-  // Hàm gửi tin nhắn trả lời
-  function sendResponse() {
-    var responseContent = document.getElementById('responseMessage').value;
-
-    if (!responseContent) {
-      alert('Vui lòng nhập nội dung tin nhắn trả lời');
-      return;
+    function sendMessage(event) {
+      var messageContent = messageInput.value.trim();
+      if (messageContent) {
+        var chatMessage = {
+          sender: username,
+          content: messageInput.value,
+          type: 'CHAT'
+        };
+        stompClient.send("/app/chat.sendMessage", {}, JSON.stringify(chatMessage));
+        messageInput.value = '';
+      }
+      event.preventDefault();
     }
 
-    // Gửi tin nhắn trả lời tới người dùng qua WebSocket
-    stompClient.send("/app/sendMessageToUser", {}, JSON.stringify({
-      'content': responseContent
-    }));
+    function displayMessage(message) {
+      var messageElement = document.createElement('p');
+      if (message.type === 'INFO') {
+        messageElement.textContent = message.sender + ": " + message.content;
+        messageElement.classList.add('message-info');
+      } else if (message.content !== null && message.content.trim() !== "") {
+        messageElement.textContent = message.sender + ": " + message.content;
+        messageElement.classList.add('message-chat');
+      }
+      messageArea.appendChild(messageElement);
+      messageArea.scrollTop = messageArea.scrollHeight; // Tự động cuộn xuống cuối khi có tin nhắn mới
+    }
 
-    // Xóa nội dung sau khi gửi
-    document.getElementById('responseMessage').value = '';
-  }
-</script>
+    document.querySelector('#messageForm').addEventListener('submit', sendMessage, true);
+  </script>
+</th:block>
 </body>
 </html>
