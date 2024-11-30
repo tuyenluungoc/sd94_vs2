@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<header class="header">
+    <nav class="navbar">
+        <div class="container">
+            <div class="logo">
+                <a href="/" ><img src="/img/logodji.png" alt="DJI Logo" style="width: 80px"></a>
+            </div>
+            <ul class="menu">
+                <li><a href="/gioi-thieu">Giới Thiệu</a></li>
+                <li><a href="/san-pham">Sản Phẩm</a></li>
+                <li><a href="/huong-dan-mua-hang">Hướng Dẫn Mua Hàng</a></li>
+                <li><a href="/bao-hanh">Dịch Vụ Bảo Hành</a></li>
+                <li><a href="/tin-tuc">Tin Tức</a></li>
+                <li><a href="/lien-he">Liên Hệ</a></li>
+            </ul>
+            <div class="search-cart">
+                <input type="text" placeholder="Tìm kiếm">
+                <i class="fas fa-search"></i>
+                <a href="/own-shoppingcart"><i class="fas fa-shopping-cart"></i></a>
+            </div>
+        </div>
+        <div>
+            <div th:if="${session.currentUser == null}">
+                <a class="text-white" href="/dang-nhap">Đăng nhập</a>
+            </div>
+            <div th:if="${session.currentUser != null}" class="d-flex align-items-center">
+                <p th:text="${session.currentUser.name}" class="mb-0 me-2 text-white"></p>
+                <a href="javascript:void(0)" class="text-white fst-italic" onclick="logout()">(Đăng xuất)</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Product Category Section -->
+
+</header>
+</body>
+</html>

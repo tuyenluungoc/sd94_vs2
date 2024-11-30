@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="https://www.thymeleaf.org"
+      th:replace="~{admin/layout/layout :: layout(~{:: title}, ~{:: #css}, ~{:: .content-wrapper}, ~{:: #js})}">
+
+<head>
+    <title>Tất cả manufacturer</title>
+
+    <th:block id="css">
+
+    </th:block>
+</head>
+
+<body>
+<div class="content-wrapper">
+    <div class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-12">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item">
+                            <a href="/admin/dashboard">Dashboard</a>
+                        </li>
+                        <li class="breadcrumb-item active">
+                            Yêu Cầu Bảo Hành
+                        </li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <section class="content">
+        <div class="container-fluid">
+            <div class="row py-2">
+                <div class="col-12">
+
+                    <a href="/admin/yc-warranty" type="button" class="btn btn-info">
+                        <i class="fas fa-redo"></i> Refresh
+                    </a>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <table id="table-manufacturer" class="table table-bordered table-hover">
+                                <thead>
+                                <tr>
+                                    <th>claimCode</th>
+                                    <th>warranty</th>
+                                    <th>claimDate</th>
+                                    <th>description</th>
+                                    <th>resolution</th>
+                                    <th>claimStatus</th>
+                                    <th>Phê Duyệt</th>
+
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr th:each="warrantyClaim : ${warrantyClaims}">
+                                    <td>
+                                        <a
+                                           th:text="${warrantyClaim.claimCode}"></a>
+                                    <td th:text="${warrantyClaim.warranty != null ? warrantyClaim.warranty.warrantyCode : 'Không có thông tin'}"></td>
+                                    <td th:text="${warrantyClaim.claimDate}"></td>
+                                    <td th:text="${warrantyClaim.description}"></td>
+                                    <td th:text="${warrantyClaim.resolution}"></td>
+                                    <td th:text="${warrantyClaim.claimStatus}"></td>
+                                    <td>
+                                        <a th:href="@{/admin/warranty/doi-trang-thai/{claimCode}(claimCode=${warrantyClaim.claimCode})}" class="btn btn-info">Duyệt</a>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+
+</body>
+</html>
