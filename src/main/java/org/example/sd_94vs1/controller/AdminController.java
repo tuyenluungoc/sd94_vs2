@@ -201,12 +201,5 @@ public String getOrdersWithDetails(Model model) {
         return "error"; // Trả về view lỗi nếu có ngoại lệ
     }
 }
-    @GetMapping("/chatus")
-    public String showAdminChatPage(Model model) {
-        // Đây là nơi bạn có thể thêm dữ liệu liên quan đến admin, nếu cần.
-        model.addAttribute("pageTitle", "Chat với người dùng");
-        return "admin/chatus";  // Trả về trang chat của admin
-    }
-
 
 }

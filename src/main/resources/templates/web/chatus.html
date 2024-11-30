@@ -1,120 +1,100 @@
-<!DOCTYPE html>
-<html lang="vi">
+<!doctype html>
+<html lang="vi" xmlns:th="https://www.thymeleaf.org"
+      th:replace="~{web/layout/layout :: layout(~{:: title}, ~{}, ~{:: #main-content}, ~{:: #js})}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.1.4/sockjs.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            margin: 0;
-            padding: 0;
-        }
-        .chat-container {
-            width: 70%;
-            margin: 20px auto;
-            background-color: white;
-            padding: 20px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-        .message-list {
-            max-height: 300px;
-            overflow-y: auto;
-            border-bottom: 1px solid #ddd;
-            padding-bottom: 10px;
-        }
-        .message {
-            margin: 10px 0;
-        }
-        .message p {
-            margin: 0;
-        }
-        .input-group {
-            display: flex;
-            gap: 10px;
-            margin-top: 20px;
-        }
-        .input-group input, .input-group button {
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-        }
-        .input-group button {
-            cursor: pointer;
-            background-color: #28a745;
-            color: white;
-        }
-    </style>
+    <title>Chat - User</title>
+
 </head>
 <body>
-<div class="chat-container">
-    <h2>Chat với người dùng</h2>
+<th:block id="main-content">
+    <h2>Chat - User</h2>
+    <div id="messageArea"></div>
+    <form id="messageForm">
+        <input type="text" id="message" placeholder="Type a message..." />
+        <button type="submit">Send</button>
+    </form>
 
-    <!-- Hiển thị danh sách tin nhắn -->
-    <div class="message-list" id="messageList">
-        <!-- Tin nhắn sẽ được thêm vào đây -->
-        <div th:each="message : ${messages}">
-            <div class="message">
-                <p><strong th:text="${message.senderCode}"></strong>: <span th:text="${message.content}"></span></p>
-            </div>
-        </div>
-    </div>
 
-    <!-- Form gửi tin nhắn -->
-    <div class="input-group">
-        <input type="text" id="messageContent" placeholder="Nhập tin nhắn..." />
-        <button onclick="sendMessage()">Gửi</button>
-    </div>
-</div>
+</th:block>
+<th:block id="js">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.1.4/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+    <script>
+        // Lấy user_code từ URL
+        var urlPath = window.location.pathname;
+        var userCode = urlPath.split("/").pop(); // Tách phần cuối cùng (user_code)
 
-<script>
-    // Lấy userCode từ URL (ví dụ: /chatus/us8533)
-    var currentUserCode = window.location.pathname.split('/')[2];  // Lấy phần userCode từ URL
+        // Thiết lập kết nối WebSocket
+        var socket = new SockJS('/ws');
+        var stompClient = Stomp.over(socket);
+        var messageInput = document.querySelector('#message');
+        var messageArea = document.querySelector('#messageArea');
+        var username = userCode;
 
-    // Tạo kết nối WebSocket
-    var socket = new SockJS('/chatus'); // WebSocket endpoint
-    var stompClient = Stomp.over(socket);
+        // Kiểm tra nếu WebSocket đã được kết nối trước đó
+        var isConnected = false;
 
-    // Kết nối WebSocket
-    stompClient.connect({}, function(frame) {
-        console.log('Connected: ' + frame);
+        function connectWebSocket() {
+            if (isConnected) return; // Nếu đã kết nối rồi thì không kết nối lại
 
-        // Đăng ký để nhận tin nhắn từ server
-        stompClient.subscribe('/topic/admins', function(messageOutput) {
-            showMessage(messageOutput.body);
-        });
-    });
+            stompClient.connect({}, function (frame) {
+                console.log('Connected: ' + frame);
+                isConnected = true; // Đánh dấu đã kết nối
 
-    // Hàm hiển thị tin nhắn
-    function showMessage(message) {
-        var messageList = document.getElementById('messageList');
-        var messageElement = document.createElement('div');
-        messageElement.classList.add('message');
-        messageElement.innerHTML = '<p>' + message + '</p>';
-        messageList.appendChild(messageElement);
-        messageList.scrollTop = messageList.scrollHeight; // Cuộn xuống tin nhắn mới nhất
-    }
+                // Đảm bảo chỉ subscribe một lần
+                stompClient.subscribe('/topic/public', function (messageOutput) {
+                    var message = JSON.parse(messageOutput.body);
+                    displayMessage(message);
+                });
 
-    // Hàm gửi tin nhắn
-    function sendMessage() {
-        var content = document.getElementById('messageContent').value;
-
-        if (!content) {
-            alert('Vui lòng nhập nội dung tin nhắn');
-            return;
+                // Gửi thông báo người dùng đã tham gia
+                stompClient.send("/app/chat.addUser", {}, JSON.stringify({sender: username, type: 'JOIN'}));
+                displayMessage({sender: username, content: "đã join vào hội thoại", type: 'INFO'});
+            });
         }
 
-        // Gửi tin nhắn tới server (gửi tin nhắn tới tất cả admin)
-        stompClient.send("/app/send/" + currentUserCode, {}, JSON.stringify({
-            'content': content
-        }));
+        function sendMessage(event) {
+            var messageContent = messageInput.value.trim();
+            if (messageContent && isConnected) {
+                var chatMessage = {
+                    sender: username,
+                    content: messageContent,
+                    type: 'CHAT'
+                };
+                console.log("Sending message:", chatMessage); // Log khi gửi tin nhắn
+                stompClient.send("/app/chat.sendMessage", {}, JSON.stringify(chatMessage));
+                messageInput.value = '';
+            }
+            event.preventDefault();
+        }
 
-        // Xóa nội dung sau khi gửi
-        document.getElementById('messageContent').value = '';
-    }
-</script>
+        function displayMessage(message) {
+            var messageElement = document.createElement('p');
+            if (message.type === 'INFO') {
+                messageElement.textContent = message.sender + ": " + message.content;
+                messageElement.style.fontStyle = 'italic';
+                messageElement.style.color = 'gray';
+            } else {
+                messageElement.textContent = message.sender + ": " + message.content;
+                // Xử lý kiểu tin nhắn của người dùng
+                if (message.sender === username) {
+                    messageElement.classList.add('user-message');
+                } else {
+                    messageElement.classList.add('other-message');
+                }
+            }
+            messageArea.appendChild(messageElement);
+            messageArea.scrollTop = messageArea.scrollHeight; // Cuộn xuống cuối để xem tin nhắn mới
+        }
+
+        document.querySelector('#messageForm').addEventListener('submit', sendMessage, true);
+
+        // Kết nối WebSocket khi trang được tải
+        connectWebSocket();
+    </script>
+
+</th:block>
 </body>
 </html>

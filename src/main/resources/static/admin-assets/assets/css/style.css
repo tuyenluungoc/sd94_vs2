@@ -237,3 +237,93 @@ img {
     height: 100%;
     object-fit: cover;
 }
+h2 {
+    text-align: center;
+    color: #333;
+    margin-top: 20px;
+}
+
+#messageArea {
+    width: 80%;
+    margin: 20px auto;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    max-height: 500px;
+    overflow-y: scroll;
+}
+
+#messageForm {
+    width: 80%;
+    margin: 20px auto;
+    display: flex;
+    justify-content: space-between;
+}
+
+#message {
+    width: 80%;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+}
+
+button {
+    width: 15%;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+    background-color: #4CAF50;
+    color: white;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #45a049;
+}
+
+/* Tin nhắn */
+.message {
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 5px;
+    max-width: 60%;
+}
+
+.admin-message {
+    background-color: #f0f0f0;
+    align-self: flex-start;
+    color: #333;
+}
+
+.user-message {
+    background-color: #007bff;
+    color: white;
+    align-self: flex-end;
+}
+
+/* Tin nhắn thông tin */
+.info-message {
+    font-style: italic;
+    color: gray;
+    text-align: center;
+    font-size: 0.9em;
+}
+
+/* Container để căn chỉnh tin nhắn */
+.message-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.message-container .message {
+    display: flex;
+    justify-content: flex-start;
+    margin: 5px;
+}
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 0;
+}
