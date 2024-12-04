@@ -70,6 +70,8 @@
                     <th>Giá</th>
                     <th>Số Lượng</th>
                     <th>Tổng Cộng</th>
+                    <th>THAO TÁC</th>
+
                 </tr>
                 </thead>
                 <tbody>
@@ -84,6 +86,7 @@
                         <td th:text="${shoppingCartProduct.price} + ' VND'">0 VND</td>
                         <td th:text="${shoppingCartProduct.amount}">1</td>
                         <td th:text="${shoppingCartProduct.price * shoppingCartProduct.amount} + ' VND'">0 VND</td>
+<!--                        <td>${#numbers.formatCurrency(shoppingCartProduct.price * shoppingCartProduct.amount)}-->
                         <td>
                             <form th:action="@{/delete-cart-item}" method="post" style="display: inline;">
                                 <input type="hidden" name="productCode" th:value="${shoppingCartProduct.product.productCode}" /> <!-- Sử dụng productCode -->

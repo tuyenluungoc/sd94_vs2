@@ -15,4 +15,6 @@ public interface WarrantyRepo extends JpaRepository<Warranty, String> {
 
         Warranty findByWarrantyCode(String warrantyCode);
     Optional<Warranty> findByInventory_InventoryCode(String inventoryCode);
+
+
 }

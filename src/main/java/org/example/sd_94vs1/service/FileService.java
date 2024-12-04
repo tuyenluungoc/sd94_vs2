@@ -46,11 +46,18 @@ public class FileService {
             throw new RuntimeException("Không thể tải lên tệp");
         }
     }
-    public static void deleteFile(String filePath) {
+    public void deleteFile(String filePath) {
         // Kiểm tra nếu đường dẫn là URL và bỏ qua nếu đúng
         if (filePath.startsWith("http://") || filePath.startsWith("https://")) {
             System.out.println("Skipping deletion of URL: " + filePath);
             return;
+        }
+
+        if (filePath.startsWith(File.separator)) {
+            filePath = filePath.substring(1);
+        }
+        if (!filePath.startsWith(UPLOAD_FOLDER)) {
+            filePath = UPLOAD_FOLDER + File.separator + filePath;
         }
 
         try {

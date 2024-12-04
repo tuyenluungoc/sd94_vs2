@@ -11,12 +11,12 @@ import java.util.Optional;
 
 @Repository
 public interface DetailedProductRepository extends JpaRepository<DetailedProduct, String> {
-    // Bạn có thể định nghĩa các phương thức truy vấn tùy chỉnh tại đây
     Optional<DetailedProduct> findByProduct(Product product);
     @Query("SELECT p.priceVND FROM DetailedProduct p WHERE p.product.productCode = :productCode")
     BigDecimal findPriceVNDByProductCode(String productCode);
     DetailedProduct findByProduct_ProductCode(String productCode);
 
     DetailedProduct findByDetailedProductCode(String detailedProductCode);
+
 
 }

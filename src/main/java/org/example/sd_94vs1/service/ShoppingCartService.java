@@ -2,7 +2,6 @@ package org.example.sd_94vs1.service;
 
 import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
-import org.example.sd_94vs1.entity.Inventory;
 import org.example.sd_94vs1.entity.ShoppingCart;
 import org.example.sd_94vs1.entity.ShoppingCartProducts;
 import org.example.sd_94vs1.entity.User;

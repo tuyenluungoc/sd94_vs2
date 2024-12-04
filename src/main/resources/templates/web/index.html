@@ -13,6 +13,149 @@
               integrity="sha512-sMXtMNL1zRzolHYKEujM2AqCLUR9F2C4/05cdbxjjLSRvMQIciEPCQZo++nk7go3BtSuK9kfa/s+a4f4i5pLkw=="
               crossorigin="anonymous" referrerpolicy="no-referrer"/>
         <link rel="stylesheet" th:href="@{/web/css/style.css}"/>
+
+        <style>
+            .card-container {
+                display: flex; /* Sử dụng Flexbox để xếp các thẻ card cạnh nhau */
+                flex-wrap: wrap; /* Cho phép các thẻ card xếp chồng lên nhau khi không đủ chỗ */
+                justify-content: space-between; /* Căn bên trái các thẻ card */
+                padding: 50px; /* Thêm khoảng cách bên trong cho container */
+                gap: 10px; /* Khoảng cách giữa các thẻ card */
+                overflow: auto; /* Thêm thanh cuộn nếu không đủ chỗ */
+            }
+
+            .card {
+                background-color: #ffffff; /* Màu nền cho thẻ card */
+                border-radius: 10px; /* Bo tròn góc */
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Đổ bóng cho thẻ card */
+                text-align: center; /* Căn giữa văn bản trong thẻ card */
+                width: calc(25% - 20px); /* Đặt chiều rộng thẻ card để vừa với 4 thẻ trên một dòng */
+                transition: transform 0.3s ease; /* Hiệu ứng khi hover */
+                max-width: 300px; /* Giới hạn chiều rộng tối đa cho thẻ card */
+                overflow: hidden;
+            }
+
+            /* Responsive design */
+            @media (max-width: 768px) {
+                .card {
+                    width: calc(50% - 10px); /* Đặt chiều rộng thẻ card để vừa với 2 thẻ trên một dòng */
+                    max-width: none;
+                }
+            }
+
+            @media (max-width: 480px) {
+                .card {
+                    width: calc(100% - 10px); /* Đặt chiều rộng thẻ card để vừa với 1 thẻ trên một dòng */
+                    max-width: none;
+                }
+            }
+
+            .card-image {
+                width: 100%; /* Đảm bảo hình ảnh chiếm toàn bộ chiều rộng thẻ card */
+                height: 200px; /* Đặt chiều cao cố định cho hình ảnh */
+                border-radius: 10px 10px 0 0; /* Bo tròn góc trên cho hình ảnh */
+                object-fit: cover; /* Đảm bảo hình ảnh không bị méo */
+            }
+
+            .card-title {
+                font-size: 1em; /* Kích thước chữ tiêu đề */
+                margin: 10px 0;
+            }
+
+            .card-text {
+                font-size: 0.9em; /* Kích thước chữ cho văn bản */
+                margin: 0 10px 10px; /* Khoảng cách văn bản so với các cạnh */
+            }
+
+
+            /* About section */
+            .about {
+                background-color: #fff;
+                padding: 20px;
+                text-align: center;
+            }
+
+            /* Responsive styles */
+            @media (max-width: 768px) {
+                .menu {
+                    font-size: 14px; /* Giảm kích thước chữ cho menu */
+                }
+
+                .menu li {
+                    margin: 0 10px; /* Giảm khoảng cách giữa các mục menu */
+                }
+
+                .card {
+
+                    width: 90%; /* Đặt chiều rộng cho thẻ sản phẩm để vừa với màn hình */
+                    max-width: 250px; /* Giới hạn chiều rộng tối đa */
+                    max-height: 250px;
+                    padding: 15px; /* Giảm padding cho thẻ */
+                    width: calc(50% - 10px); /* Chiều rộng 2 thẻ trên màn hình điện thoại */
+                    max-width: none;
+                }
+
+                .card-title {
+                    font-size: 1em; /* Giảm kích thước chữ tiêu đề cho thẻ */
+
+                }
+
+                .card-text {
+                    font-size: 0.8em; /* Giảm kích thước chữ cho văn bản thẻ */
+                    text-overflow: ellipsis;
+                    overflow: hidden; /* Ẩn phần nội dung thừa */
+                    white-space: nowrap; /* Đặt nội dung trong một dòng */
+                    text-overflow: ellipsis;
+                }
+
+                .search-cart input {
+                    font-size: 12px; /* Giảm kích thước chữ trong ô tìm kiếm */
+                }
+
+                .search-cart i {
+                    font-size: 14px; /* Giảm kích thước chữ cho icon */
+                }
+
+                .product-list {
+                    flex-direction: row; /* Giữ thẻ sản phẩm nằm ngang */
+                    justify-content: center; /* Căn giữa các thẻ */
+                }
+                .product-list img {
+
+                    height: auto; /* Chiều cao tự động */
+                }
+                .card-image {
+                    max-width: 100%; /* Đảm bảo hình ảnh không vượt quá chiều rộng của thẻ */
+                    height: auto; /* Chiều cao tự động */
+
+                }
+            }
+
+            @media (max-width: 480px) {
+                .menu {
+                    font-size: 12px; /* Giảm kích thước chữ cho menu trên màn hình nhỏ */
+                }
+
+                .card {
+                    width: 95%; /* Đặt chiều rộng cho thẻ sản phẩm để vừa với màn hình */
+                    max-width: 220px; /* Giới hạn chiều rộng tối đa cho thẻ sản phẩm nhỏ */
+                    padding: 10px; /* Giảm padding cho thẻ */
+                    width: calc(50% - 10px); /* Đặt chiều rộng thẻ card để vừa với 2 thẻ trên một dòng */
+                    max-width: none;
+                }
+
+                .card-title {
+                    font-size: 0.9em; /* Giảm kích thước chữ tiêu đề cho thẻ */
+                }
+
+                .card-text {
+                    font-size: 0.7em; /* Giảm kích thước chữ cho văn bản thẻ */
+                }
+            }
+
+
+
+        </style>
     </th:block>
 
 

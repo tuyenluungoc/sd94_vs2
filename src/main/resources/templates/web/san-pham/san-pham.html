@@ -106,7 +106,71 @@
                 display: flex;
                 /*margin: 5%;*/
             }
+
+            /*tìm kiếm*/
+
+            .product-container {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 20px;
+                justify-content: space-between;
+            }
+
+            .product-card {
+                width: calc(33.33% - 20px); /* Chiếm 1/3 chiều rộng của container, trừ khoảng cách */
+                box-sizing: border-box;
+                border: 1px solid #ddd;
+                border-radius: 8px;
+                overflow: hidden;
+                background-color: #fff;
+                transition: transform 0.3s, box-shadow 0.3s;
+            }
+
+            .product-card:hover {
+                transform: translateY(-10px); /* Tạo hiệu ứng nổi lên khi hover */
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Đổ bóng khi hover */
+            }
+
+            .product-link {
+                text-decoration: none;
+                color: inherit;
+                display: block;
+            }
+
+            .product-image {
+                width: 100%;
+                height: 200px;
+                object-fit: cover;
+                border-bottom: 1px solid #ddd;
+            }
+
+            .product-name {
+                padding: 15px;
+                font-size: 1.2rem;
+                font-weight: bold;
+                color: #333;
+            }
+
+            .product-description {
+                padding: 0 15px 15px;
+                font-size: 1rem;
+                color: #555;
+            }
+
+            @media (max-width: 768px) {
+                .product-card {
+                    width: calc(50% - 10px); /* 2 sản phẩm mỗi hàng trên màn hình nhỏ */
+                }
+            }
+
+            @media (max-width: 480px) {
+                .product-card {
+                    width: 100%; /* 1 sản phẩm mỗi hàng trên màn hình rất nhỏ */
+                }
+            }
+
         </style>
+
 
     </th:block>
 
@@ -119,7 +183,7 @@
                 <h3>
                     <h3><strong>Product Series</strong></h3>
                     <ul class="category-list">
-                        <li><input type="radio" name="product" value="Tat ca" onclick="filterProducts1()"> Tất cả
+                        <li><input type="radio" name="product" value="Tat ca" onclick="filterProducts1()" checked> Tất cả
                         </li>
                         <li><input type="radio" name="product" value="DJI Mini" onclick="filterProducts()"> DJI Mini
                         </li>
@@ -162,6 +226,16 @@
         </div>
 
         <div class="san-pham-all">
+
+            <div class="product-container">
+                <div th:each="product : ${products}" class="product-card">
+                    <a th:href="@{/products/{productCode}(productCode=${product.productCode})}" class="product-link">
+                        <img th:src="${product.image}" alt="${product.name}" class="product-image">
+                        <h2 class="product-name" th:text="${product.name}">Tên sản phẩm</h2>
+                        <p class="product-description" th:text="${product.description}">Mô tả</p>
+                    </a>
+                </div>
+            </div>
 
 
             <div id="DJI-Mini" class="product-section">

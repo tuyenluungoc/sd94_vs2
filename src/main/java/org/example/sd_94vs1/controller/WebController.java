@@ -25,7 +25,6 @@ import org.example.sd_94vs1.service.product.ProductService;
 import org.example.sd_94vs1.service.product.ProductTypeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -66,7 +65,7 @@ public class WebController {
 //        Phân danh mục cớ bản không theo enum
         List<Product> productsmini = productService.findProductsByCodeAndType("mn","bn001");
         List<Product> productsmavic = productService.findProductsByCodeAndType("mv","bn001");
-        List<Product> productsfpv = productService.findProductsByCodeAndType("fpv","bn001");
+        List<Product> productsfpv = productService.findProductsByCodeAndType("fpv","bn005");
         List<Product>productsins= productService.findProductsByCodeAndType("ins","bn001");
         List<Product>productsmar= productService.findProductsByCodeAndType("mar","bn001");
         List<Product>productsmas= productService.findProductsByCodeAndType("mas","bn001");
@@ -157,28 +156,28 @@ public class WebController {
 
         return "web/san-pham/san-pham";
     }
-//    detail
-@GetMapping("/products/{productCode}")
-public String getDetailedProduct(@PathVariable("productCode") String productCode, Model model) {
-    // Tìm sản phẩm theo productCode
-    Optional<Product> productOpt = productRepository.findByProductCode(productCode);
+    //    detail
+    @GetMapping("/products/{productCode}")
+    public String getDetailedProduct(@PathVariable("productCode") String productCode, Model model) {
+        // Tìm sản phẩm theo productCode
+        Optional<Product> productOpt = productRepository.findByProductCode(productCode);
 
-    if (productOpt.isPresent()) {
-        // Tìm chi tiết sản phẩm theo mã sản phẩm
-        Optional<DetailedProduct> detailedProductOpt = detailedProductRepository.findByProduct(productOpt.get());
+        if (productOpt.isPresent()) {
+            // Tìm chi tiết sản phẩm theo mã sản phẩm
+            Optional<DetailedProduct> detailedProductOpt = detailedProductRepository.findByProduct(productOpt.get());
 
-        if (detailedProductOpt.isPresent()) {
-            model.addAttribute("detailedProduct", detailedProductOpt.get());
-            model.addAttribute("product", productOpt.get());
-            return "web/detailproduct"; // Trả về view chi tiết sản phẩm
+            if (detailedProductOpt.isPresent()) {
+                model.addAttribute("detailedProduct", detailedProductOpt.get());
+                model.addAttribute("product", productOpt.get());
+                return "web/detailproduct"; // Trả về view chi tiết sản phẩm
+            } else {
+                model.addAttribute("message", "Không tìm thấy chi tiết sản phẩm.");
+            }
         } else {
-            model.addAttribute("message", "Không tìm thấy chi tiết sản phẩm.");
+            model.addAttribute("message", "Sản phẩm không tồn tại.");
         }
-    } else {
-        model.addAttribute("message", "Sản phẩm không tồn tại.");
+        return "error"; // Trả về trang lỗi nếu không tìm thấy sản phẩm hoặc chi tiết sản phẩm
     }
-    return "error"; // Trả về trang lỗi nếu không tìm thấy sản phẩm hoặc chi tiết sản phẩm
-}
     @GetMapping("/dang-ky")
     public String getDangKyPage() {
         User user = (User) session.getAttribute("currentUser"); // Lấy thông tin người dùng trong session
@@ -610,5 +609,13 @@ public String thanhCong(Model model, HttpServletRequest request, RedirectAttribu
         }
 
         return "admin/chatus";
+    }
+
+    @GetMapping("/search")
+    public String search(@RequestParam("query") String query, Model model) {
+        // Giả sử bạn có một service để tìm kiếm sản phẩm
+        List<Product> products = productService.searchProducts(query);
+        model.addAttribute("products", products);
+        return "web/san-pham/san-pham";  // Trang hiển thị kết quả tìm kiếm
     }
 }

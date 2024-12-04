@@ -56,23 +56,40 @@ public class ManufacturerController {
         return "redirect:/admin/manufacturer"; // Chuyển hướng về trang danh sách nhà cung cấp
     }
 
-    @PostMapping("/delete-manufacturer/{manufacturerCode}")
-    public String deleteManufacturer(@PathVariable String manufacturerCode, RedirectAttributes redirectAttributes) {
-        // Kiểm tra xem nhà cung cấp có tồn tại không
-        Optional<Manufacturer> manufacturerOpt = manufacturerRepository.findById(manufacturerCode);
 
-        if (manufacturerOpt.isPresent()) {
-            // Xóa nhà cung cấp, MySQL sẽ tự động xóa các sản phẩm liên quan nhờ vào ON DELETE CASCADE
-            manufacturerRepository.delete(manufacturerOpt.get());
+    @GetMapping("/update-manufacturer/{manufacturerCode}")
+    public String showUpdateForm(@PathVariable("manufacturerCode") String manufacturerCode, Model model) {
+        Manufacturer manufacturer = manufacturerRepository.findById(manufacturerCode)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid manufacturer code: " + manufacturerCode));
 
-            // Thông báo thành công
-            redirectAttributes.addFlashAttribute("successMessage", "Xóa nhà cung cấp và các sản phẩm liên quan thành công!");
-        } else {
-            redirectAttributes.addFlashAttribute("error", "Không tìm thấy nhà cung cấp với mã đã cho!");
-        }
-
-        return "redirect:/admin/manufacturer"; // Quay lại trang danh sách nhà cung cấp
+        model.addAttribute("manufacturer", manufacturer);
+        return "admin/update-manufacturer"; // Thymeleaf template for the form
     }
+
+    // Handle the update request
+    @PostMapping("/update-manufacturer")
+    public String updateManufacturer(
+            @RequestParam("manufacturerCode") String manufacturerCode,
+            @RequestParam("name") String name,
+            @RequestParam("country") String country,
+            RedirectAttributes redirectAttributes) {
+
+        Manufacturer manufacturer = manufacturerRepository.findById(manufacturerCode)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid manufacturer code: " + manufacturerCode));
+
+        // Update the manufacturer's information
+        manufacturer.setName(name);
+        manufacturer.setCountry(country);
+
+        // Save the updated manufacturer
+        manufacturerRepository.save(manufacturer);
+
+        // Add success message and redirect
+        redirectAttributes.addFlashAttribute("successMessage", "Cập nhật Nhà Cung Cấp thành công!");
+        return "redirect:/admin/manufacturer"; // Redirect to the manufacturer list page
+    }
+
+
 
 
 

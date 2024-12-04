@@ -1,6 +1,7 @@
 package org.example.sd_94vs1.controller;
 
 import jakarta.servlet.http.HttpSession;
+import org.example.sd_94vs1.entity.Inventory;
 import org.example.sd_94vs1.entity.warranty.Warranty;
 import org.example.sd_94vs1.entity.warranty.WarrantyClaim;
 import org.example.sd_94vs1.repository.InventoryRepository;
@@ -15,6 +16,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
+import java.util.Optional;
 
 
 @Controller
@@ -37,47 +39,67 @@ public class BaoHanhController {
         return "web/bao-hanh";
     }
 
-    @GetMapping("/validate-warranty-code/{warrantyCode}")
-    public ResponseEntity<Boolean> validateWarrantyCode(@PathVariable String warrantyCode) {
-        boolean isValid = warrantyClaimService.isWarrantyCodeValid(warrantyCode);
-        return ResponseEntity.ok(isValid);
+    @GetMapping("/validate-imei/{imei}")
+    public ResponseEntity<Warranty> getWarrantyByImei(@PathVariable String imei) {
+        try {
+            Optional<Inventory> inventory = inventoryRepository.findByImei(imei);
+            if (inventory.isPresent()) {
+                Warranty warranty = warrantyRepository.findByInventory(inventory.get());
+                if (warranty != null) {
+                    return ResponseEntity.ok(warranty);
+                }
+            }
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
     }
 
-    @PostMapping("/yeu-cau-bao-hanh/{warrantyCode}")
-    public ResponseEntity<String> createWarrantyClaim(@RequestBody WarrantyClaim warrantyClaim,@PathVariable String warrantyCode) {
+    @PostMapping("/yeu-cau-bao-hanh/{imei}")
+    public ResponseEntity<String> createWarrantyClaim(@RequestBody WarrantyClaim warrantyClaim, @PathVariable String imei) {
         try {
-//             Tìm thực thể Warranty dựa trên mã code
-            Warranty warranty = warrantyRepository.findByWarrantyCode(warrantyCode);
-            System.out.println(warranty);
-
-            if (warranty == null) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Mã bảo hành không hợp lệ!");
+            Optional<Inventory> inventory = inventoryRepository.findByImei(imei);
+            if (inventory.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("IMEI không hợp lệ!");
             }
-//             Gắn đối tượng Warranty vào WarrantyClaim
+
+            Warranty warranty = warrantyRepository.findByInventory(inventory.get());
+            if (warranty == null) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Không tìm thấy bảo hành!");
+            }
 
             warrantyClaim.setWarranty(warranty);
-            // Lưu yêu cầu bảo hành
             warrantyClaimService.createWarrantyClaim(warrantyClaim);
 
             return ResponseEntity.ok("Yêu cầu bảo hành đã được thêm thành công!");
         } catch (Exception e) {
-            return ResponseEntity.status(500).body("Có lỗi xảy ra: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Có lỗi xảy ra: " + e.getMessage());
         }
     }
+
+
+
+
 
 
     @GetMapping("/search")
     public String searchWarranty(@RequestParam("imei") String imei, Model model) {
-        Map<String, Object> result = warrantyService.findWarrantyByImei(imei);
+        try {
+            var warrantyInfo = warrantyService.getWarrantyInfoByImei(imei);
 
-        if (result.containsKey("errorMessage")) {
-            model.addAttribute("errorMessage", result.get("errorMessage"));
-        } else {
-            model.addAttribute("productName", result.get("name"));
-            model.addAttribute("warrantyStatus", result.get("warrantyStatus"));
-            model.addAttribute("endDate", result.get("endDate"));
+            model.addAttribute("productName", warrantyInfo.getProductName());
+            model.addAttribute("warrantyStatus", warrantyInfo.getWarrantyStatus());
+            model.addAttribute("endDate", warrantyInfo.getEndDate());
+            model.addAttribute("productImage", warrantyInfo.getProductImage());
+        } catch (RuntimeException e) {
+            // Thêm thông báo lỗi vào model nếu không tìm thấy thông tin
+            model.addAttribute("errorMessage", "Không tìm thấy thông tin bảo hành cho IMEI này.");
         }
 
         return "web/bao-hanh";
     }
+
+
+
 }
+//  return "web/bao-hanh";

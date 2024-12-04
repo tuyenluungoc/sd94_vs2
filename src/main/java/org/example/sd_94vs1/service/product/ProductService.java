@@ -42,4 +42,8 @@ public class ProductService {
         return productRepository.findByNameContainingIgnoreCase(keyword);
     }
 
+    public List<Product> searchProducts(String query) {
+        // Tìm kiếm theo tên sản phẩm hoặc mô tả sản phẩm
+        return productRepository.findByNameContainingOrDescriptionContaining(query, query);
+    }
 }

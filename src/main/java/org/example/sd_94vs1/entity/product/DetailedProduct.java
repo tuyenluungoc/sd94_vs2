@@ -4,8 +4,10 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.example.sd_94vs1.entity.product.Product;
+import org.springframework.format.annotation.NumberFormat;
 
 import java.math.BigDecimal;
+import java.util.Calendar;
 import java.util.Date;
 
 @Getter
@@ -32,7 +34,8 @@ public class DetailedProduct {
     int quantity;
 
     @Column(name = "price_vnd", precision = 10, scale = 2)
-    BigDecimal priceVND;
+    @NumberFormat(style = NumberFormat.Style.CURRENCY)
+    private BigDecimal priceVND;
 
     @Column(name = "date")
     @Temporal(TemporalType.DATE)
@@ -63,5 +66,14 @@ public class DetailedProduct {
                 ", date=" + date +
                 ", editDate=" + editDate +
                 '}';
+
+
     }
+
+//    public Date getWarrantyEndDate() {
+//        Calendar calendar = Calendar.getInstance();
+//        calendar.setTime(new Date());
+//        calendar.add(Calendar.MONTH, 12); // Thêm 12 tháng
+//        return calendar.getTime();
+//    }
 }

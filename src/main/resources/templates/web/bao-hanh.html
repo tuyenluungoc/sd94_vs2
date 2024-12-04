@@ -115,6 +115,12 @@
                 color: red;
                 display: none;
             }
+            .thong-tin-bao-hanh{
+                background-color: whitesmoke;
+            }
+            .loi-tra-ve{
+                background-color: whitesmoke;
+            }
         </style>
 </head>
 
@@ -129,41 +135,44 @@
     </form>
 
     <!-- Thông báo lỗi -->
-    <p th:if="${errorMessage != null}" style="color: red;" th:text="${errorMessage}"></p>
+    <p class="loi-tra-ve" th:if="${errorMessage != null}" style="color: red; margin-top: 10px;" th:text="${errorMessage}" ></p>
 
     <!-- Hiển thị thông tin sản phẩm -->
     <div th:if="${productName != null}">
-        <h2>Thông tin sản phẩm</h2>
-        <p><strong>Tên sản phẩm:</strong> <span th:text="${productName}"></span></p>
-        <p><strong>Trạng thái bảo hành:</strong> <span th:text="${warrantyStatus}"></span></p>
-        <p><strong>Ngày kết thúc bảo hành:</strong> <span th:text="${endDate}"></span></p>
-        <div>
-            <strong>Hình ảnh sản phẩm:</strong>
-            <!--            <img th:src="@{${productImage}}" alt="Hình ảnh sản phẩm" style="max-width: 300px;" />-->
+       <div class="thong-tin-bao-hanh">
+           <h2>Thông tin sản phẩm</h2>
+           <p><strong>Tên sản phẩm:</strong> <span th:text="${productName}"></span></p>
+           <p><strong>Trạng thái bảo hành:</strong> <span th:text="${warrantyStatus}"></span></p>
+           <p><strong>Ngày kết thúc bảo hành:</strong> <span th:text="${endDate}"></span></p>
+           <div>
+               <strong>Hình ảnh sản phẩm:</strong>
+               <img th:src="${productImage}" alt="Hình ảnh sản phẩm" style="max-width: 300px;" />
+           </div>
+       </div>
+        <button id="openModal">Thêm yêu cầu bảo hành</button>
+
+        <div class="modal" id="modalForm">
+            <div class="modal-content">
+                <h2>Nhập Yêu Cầu Bảo Hành</h2>
+                <form id="warrantyForm">
+                    <input type="text" id="tim-imei" name="imei" placeholder="IMEI sản phẩm" required>
+                    <span id="imeiError" class="error-message">IMEI không hợp lệ hoặc không tìm thấy!</span>
+
+                    <textarea id="description" name="description" placeholder="Mô tả vấn đề" rows="4" required></textarea>
+                    <input type="text" id="resolution" name="resolution" placeholder="Giải pháp (nếu có)">
+
+                    <input type="hidden" id="claimStatus" name="claimStatus" value="Chưa Duyệt">
+
+                    <button type="button" class="close-btn" id="closeModal">Đóng</button>
+                    <button type="submit" class="submit-btn">Gửi</button>
+                </form>
+            </div>
         </div>
+
     </div>
 
     <!--    phần này là form thêm yêu cầu bảo hành-->
-    <button id="openModal">Thêm yêu cầu bảo hành</button>
 
-    <div class="modal" id="modalForm">
-        <div class="modal-content">
-            <h2>Nhập Yêu Cầu Bảo Hành</h2>
-            <form id="warrantyForm">
-                <input type="text" id="warrantyCode" name="warrantyCode" placeholder="Mã bảo hành" required>
-                <span id="warrantyCodeError" class="error-message">Mã bảo hành không đúng!</span>
-
-                <textarea id="description" name="description" placeholder="Mô tả vấn đề" rows="4" required></textarea>
-                <input type="text" id="resolution" name="resolution" placeholder="Giải pháp (nếu có)">
-
-                <!-- Trường trạng thái mặc định ẩn -->
-                <input type="hidden" id="claimStatus" name="claimStatus" value="Chưa Duyệt">
-
-                <button type="button" class="close-btn" id="closeModal">Đóng</button>
-                <button type="submit" class="submit-btn">Gửi</button>
-            </form>
-        </div>
-    </div>
 
     <div class="accordion">
         <div class="accordion-item">
@@ -233,82 +242,88 @@
             });
         });
 
-        const modal = document.getElementById("modalForm");
-        const openModal = document.getElementById("openModal");
-        const closeModal = document.getElementById("closeModal");
-        const form = document.getElementById("warrantyForm");
-        const warrantyCodeInput = document.getElementById("warrantyCode");
-        const warrantyCodeError = document.getElementById("warrantyCodeError");
 
-        // Mở form
-        openModal.addEventListener("click", () => {
+            // JavaScript mở/đóng modal
+            document.addEventListener("DOMContentLoaded", () => {
+            const modal = document.getElementById("modalForm");
+            const openModal = document.getElementById("openModal");
+            const closeModal = document.getElementById("closeModal");
+            const imeiInput = document.getElementById("tim-imei");
+            const imeiError = document.getElementById("imeiError");
+            const form = document.getElementById("warrantyForm");
+
+            // Mở modal
+            openModal.addEventListener("click", () => {
             modal.style.display = "flex";
         });
 
-        // Đóng form
-        closeModal.addEventListener("click", () => {
+            // Đóng modal
+            closeModal.addEventListener("click", () => {
             modal.style.display = "none";
         });
 
-        // Kiểm tra mã bảo hành
-        warrantyCodeInput.addEventListener("blur", async () => {
-            const warrantyCode = warrantyCodeInput.value.trim();
-            if (warrantyCode) {
-                const isValid = await validateWarrantyCode(warrantyCode);
-                warrantyCodeError.style.display = isValid ? "none" : "block";
-            } else {
-                warrantyCodeError.style.display = "none";
-            }
+            // Kiểm tra IMEI
+            imeiInput.addEventListener("blur", async () => {
+            const imei = imeiInput.value.trim();
+            if (imei) {
+            const warranty = await fetchWarrantyByImei(imei);
+            imeiError.style.display = warranty ? "none" : "block";
+        } else {
+            imeiError.style.display = "none";
+        }
         });
 
-        // Xử lý khi gửi form
-        form.addEventListener("submit", async (e) => {
+            // Xử lý submit form
+            form.addEventListener("submit", async (e) => {
             e.preventDefault();
 
-            const warrantyCode = warrantyCodeInput.value.trim();
-            const isValid = await validateWarrantyCode(warrantyCode);
+            const imei = imeiInput.value.trim();
+            const warranty = await fetchWarrantyByImei(imei);
 
-            if (!isValid) {
-                warrantyCodeError.style.display = "block";
-                return;
-            }
+            if (!warranty) {
+            imeiError.style.display = "block";
+            return;
+        }
 
             const data = {
-                warrantyCode: warrantyCode,
-                description: form.description.value.trim(),
-                resolution: form.resolution.value.trim(),
-                claimStatus: form.claimStatus.value,
-            };
+            warrantyCode: warranty.warrantyCode,
+            description: form.description.value.trim(),
+            resolution: form.resolution.value.trim(),
+            claimStatus: form.claimStatus.value,
+        };
 
-            const response = await fetch(`/bao-hanh/yeu-cau-bao-hanh/${warrantyCode}`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(data),
-            });
-
-            if (response.ok) {
-                alert("Yêu cầu bảo hành đã được thêm thành công!");
-                modal.style.display = "none";
-                form.reset();
-            } else {
-                alert("Có lỗi xảy ra. Vui lòng thử lại!");
-            }
+            const response = await fetch(`/bao-hanh/yeu-cau-bao-hanh/${imei}`, {
+            method: "POST",
+            headers: {
+            "Content-Type": "application/json",
+        },
+            body: JSON.stringify(data),
         });
 
-        // Hàm kiểm tra mã bảo hành qua API
-        async function validateWarrantyCode(warrantyCode) {
-            try {
-                const response = await fetch(`/bao-hanh/validate-warranty-code/${warrantyCode}`);
-                if (response.ok) {
-                    return await response.json(); // Trả về true hoặc false
-                }
-            } catch (error) {
-                console.error("Lỗi khi kiểm tra mã bảo hành:", error);
-            }
-            return false;
+            if (response.ok) {
+            alert("Yêu cầu bảo hành đã được thêm thành công!");
+            form.reset();
+            modal.style.display = "none";
+        } else {
+            alert("Có lỗi xảy ra. Vui lòng thử lại!");
         }
+        });
+
+            // Hàm lấy thông tin bảo hành theo IMEI
+            async function fetchWarrantyByImei(imei) {
+            try {
+            const response = await fetch(`/bao-hanh/validate-imei/${imei}`);
+            if (response.ok) {
+            return await response.json();
+        }
+        } catch (error) {
+            console.error("Lỗi khi kiểm tra IMEI:", error);
+        }
+            return null;
+        }
+        });
+
+
 
     </script>
 </th:block>

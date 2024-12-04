@@ -40,4 +40,6 @@ public interface InventoryRepository extends JpaRepository<Inventory, String> {
 
 
     Optional<Inventory> findByImei(String imei);
+
+
 }

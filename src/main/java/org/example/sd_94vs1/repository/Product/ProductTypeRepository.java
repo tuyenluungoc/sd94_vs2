@@ -8,8 +8,8 @@ import java.util.Optional;
 
 @Repository
 public interface ProductTypeRepository extends JpaRepository<ProductType, String> {
+    // Tìm ProductType theo mã loại sản phẩm (productTypeCode)
     Optional<ProductType> findByProductTypeCode(String productTypeCode);
 
     boolean existsByProductTypeCode(String productTypeCode);
-   // Bạn có thể định nghĩa các phương thức truy vấn tùy chỉnh tại đây
 }

@@ -3,8 +3,6 @@ package org.example.sd_94vs1.controller.payment;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
-import jakarta.transaction.Transactional;
-import jdk.swing.interop.SwingInterOpUtils;
 import lombok.AllArgsConstructor;
 
 import org.example.sd_94vs1.DTO.InventoryDTO;
@@ -12,7 +10,6 @@ import org.example.sd_94vs1.config.Config;
 import org.example.sd_94vs1.entity.Inventory;
 import org.example.sd_94vs1.entity.ShoppingCart;
 import org.example.sd_94vs1.entity.ShoppingCartProducts;
-import org.example.sd_94vs1.entity.User;
 import org.example.sd_94vs1.entity.oder.Order;
 import org.example.sd_94vs1.entity.product.DetailedProduct;
 import org.example.sd_94vs1.entity.product.Product;
@@ -34,7 +31,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.net.URI;
 import java.net.URLEncoder;

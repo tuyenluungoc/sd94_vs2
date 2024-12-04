@@ -1,9 +1,6 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="https://www.thymeleaf.org"
       th:replace="~{admin/layout/layout :: layout(~{:: title}, ~{:: #css}, ~{:: .content-wrapper}, ~{:: #js})}">
-
-<!--<html lang="en" xmlns:th="https://www.thymeleaf.org">-->
-
 <head>
     <title>Tất cả Sản Phẩm</title>
     <th:block id="css">
@@ -12,8 +9,6 @@
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
-    <!--  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">-->
-    <!--  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>-->
 </head>
 <body>
 <div class="content-wrapper">
@@ -118,18 +113,14 @@
                                 <tr th:each="product : ${products}">
                                     <td th:text="${product.productCode}"></td>
                                     <td th:text="${product.name}"></td>
-
-                                    <td th:text="${product.manufacturer != null ? product.manufacturer.name : 'Không có thông tin'}"></td>
-
-                                    <td th:text="${product.category != null ? product.category.name : 'Không có thông tin'}"></td>
-
+                                    <td th:text="${product.manufacturer.name}"></td>
+                                    <td th:text="${product.category.name}"></td>
                                     <td th:text="${product.status}"></td>
                                     <td><img th:src="@{${product.image}}" alt="Ảnh" width="50"></td>
                                     <td>
-                                        <button onclick="handleUpdate()" class="btn-detail"
+                                        <button onclick="handleUpdate()" class="btn btn-warning"
                                                 data-toggle="modal" data-target="#updateProductModal"
-                                                th:attr="data-code=${product.productCode}"
-                                        >
+                                                th:attr="data-code=${product.productCode}">
                                             Sửa
                                         </button>
 
@@ -202,9 +193,7 @@
                     </form>
                 </div>
             </div>
-            <div id="userInfo">
-                <!-- Dữ liệu sẽ được cập nhật qua JavaScript -->
-            </div>
+
         </div>
     </div>
 </div>
@@ -230,8 +219,7 @@
             document.getElementById('update_manufacturer_code').value = product.manufacturer.manufacturerCode;
             document.getElementById('update_category_code').value = product.category.categoryCode;
             document.getElementById('update_status').value = product.status;
-
-
+        }
 
         // update
         async function handleUpdate() {
@@ -250,12 +238,10 @@
             const closeButton = document.getElementById("closeButton");
             const userInfoDiv = document.getElementById("userInfo");
 
-
-
             closeButton.addEventListener("click", function () {
                 customerDetail.style.display = "none";
             });
-        }};
+        };
 
     </script>
 </th:block>

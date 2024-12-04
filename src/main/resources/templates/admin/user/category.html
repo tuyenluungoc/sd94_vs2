@@ -1,12 +1,13 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="https://www.thymeleaf.org"
       th:replace="~{admin/layout/layout :: layout(~{:: title}, ~{:: #css}, ~{:: .content-wrapper}, ~{:: #js})}">
-<!--<html lang="en" xmlns:th="https://www.thymeleaf.org">-->
 <head>
     <title>Tất cả Danh Mục</title>
 
     <th:block id="css">
-        <!-- Thêm CSS tùy chỉnh nếu cần -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     </th:block>
 </head>
 <body>
@@ -41,83 +42,76 @@
                 </div>
             </div>
 
-            <!-- Form thêm danh mục -->
-            <div id="category-form" class="category-form">
-                <h2>Thêm Danh Mục Mới</h2>
+            <!-- Thêm Danh Mục Form -->
+            <div class="card-body" id="category-form" style="display:none;">
                 <form id="addCategoryForm" th:action="@{/admin/add-category}" method="post" enctype="multipart/form-data">
-                    <!-- Tên Danh Mục -->
-                    <label for="category_name">Tên Danh Mục</label>
-                    <input type="text" id="category_name" name="name" required>
+                    <div class="row">
+                        <!-- Cột trái -->
+                        <div class="col-md-6">
+                            <label for="category_name" class="mt-3">Tên Danh Mục</label>
+                            <input type="text" id="category_name" name="name" class="form-control" required>
 
-                    <!-- Trạng Thái -->
-                    <label for="status">Trạng Thái</label>
-                    <select id="status" name="status" required>
-                        <option value="active">Hoạt Động</option>
-                        <option value="inactive">Không Hoạt Động</option>
-                    </select>
+                        </div>
 
-                    <!-- Ảnh -->
-                    <label for="img">Ảnh</label>
-                    <input type="file" id="img" name="img">
+                        <!-- Cột phải -->
+                        <div class="col-md-6">
+                            <label for="status" class="mt-3">Trạng Thái</label>
+                            <select id="status" name="status" class="form-control" required>
+                                <option value="" disabled selected>--Chọn trạng thái--</option>
+                                <option value="active">Hoạt Động</option>
+                                <option value="inactive">Không Hoạt Động</option>
+                            </select>
 
-                    <!-- Nút lưu -->
-                    <div class="btn-submit">
-                        <button type="submit" class="save-button">Lưu Danh Mục</button>
-                        <button type="button" class="close-button" onclick="toggleCategoryForm()">Đóng</button>
+                            <label for="img" class="mt-3">Ảnh</label>
+                            <input type="file" id="img" name="img" class="form-control">
+                        </div>
+                    </div>
+
+                    <div class="mt-4 d-flex justify-content-between">
+                        <button type="submit" class="btn btn-success">Lưu Danh Mục</button>
+                        <button type="button" class="btn btn-danger" onclick="toggleCategoryForm()">Đóng</button>
                     </div>
                 </form>
             </div>
 
-
-            <!-- Form cập nhật danh mục -->
-            <div id="update-category-form" class="category-form" style="display:none;">
-                <h2>Cập Nhật Danh Mục</h2>
-                <form id="updateCategoryForm" th:action="@{/admin/update-category}" method="post" enctype="multipart/form-data">
-                    <!-- Mã Danh Mục (readonly) -->
-                    <label for="update_category_code">Mã Danh Mục</label>
-                    <input type="text" id="update_category_code" name="categoryCode" readonly>
-
-                    <!-- Tên Danh Mục -->
-                    <label for="update_category_name">Tên Danh Mục</label>
-                    <input type="text" id="update_category_name" name="name" required>
-
-                    <!-- Ngày Tạo (readonly) -->
-                    <label for="update_creation_date">Ngày Tạo</label>
-                    <input type="date" id="update_creation_date" name="date" readonly>
-
-                    <!-- Ngày Chỉnh Sửa -->
-                    <label for="update_edit_date">Ngày Chỉnh Sửa</label>
-                    <input type="date" id="update_edit_date" name="editDate">
-
-                    <!-- Trạng Thái -->
-                    <label for="update_status">Trạng Thái</label>
-                    <select id="update_status" name="status" required>
-                        <option value="active">Hoạt Động</option>
-                        <option value="inactive">Không Hoạt Động</option>
-                    </select>
-
-                    <!-- Ảnh -->
-                    <label for="update_img">Ảnh</label>
-                    <input type="file" id="update_img" name="img">
-
-                    <!-- Nút cập nhật và đóng -->
-                    <div class="btn-submit">
-                        <button type="submit" class="save-button">Cập Nhật Danh Mục</button>
-                        <button type="button" class="close-button" onclick="toggleCategoryForm('update-category-form')">Đóng</button>
-                    </div>
-                </form>
-            </div>
-
-            <div id="customerDetail" class="thong-tin-chi-tiet" style="display: none;">
-                <h2>Thông tin Danh Mục</h2>
-                <div id="userInfo">
-                    <!-- Dữ liệu sẽ được cập nhật qua JavaScript -->
+            <!-- Cập Nhật Danh Mục -->
+            <div id="update-category-form" class="card" style="display:none;">
+                <div class="card-header">
+                    <h3>Cập Nhật Danh Mục</h3>
                 </div>
-                <button id="closeButton" class="btn-close">Đóng</button>
+                <div class="card-body">
+                    <form id="updateCategoryForm" th:action="@{/admin/update-category}" method="post" enctype="multipart/form-data">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label for="update_category_code">Mã Danh Mục</label>
+                                <input type="text" id="update_category_code" name="categoryCode" readonly class="form-control">
+
+                                <label for="update_category_name" class="mt-3">Tên Danh Mục</label>
+                                <input type="text" id="update_category_name" name="name" class="form-control" required>
+
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="update_status" class="mt-3">Trạng Thái</label>
+                                <select id="update_status" name="status" class="form-control" required>
+                                    <option value="active">Hoạt Động</option>
+                                    <option value="inactive">Không Hoạt Động</option>
+                                </select>
+
+                                <label for="update_img" class="mt-3">Ảnh</label>
+                                <input type="file" id="update_img" name="img" class="form-control">
+                            </div>
+                        </div>
+
+                        <div class="mt-4 d-flex justify-content-end">
+                            <button type="submit" class="btn btn-primary">Cập Nhập</button>
+                            <button type="button" class="btn btn-secondary ms-2" onclick="closeCategoryForm()">Đóng</button>
+                        </div>
+                    </form>
+                </div>
             </div>
 
-
-            <!-- Danh sách danh mục -->
+            <!-- Danh sách Danh Mục -->
             <div class="row">
                 <div class="col-12">
                     <div class="card">
@@ -131,7 +125,7 @@
                                     <th>Ngày Chỉnh Sửa</th>
                                     <th>Trạng Thái</th>
                                     <th>Ảnh</th>
-                                    <th>Action</th>
+                                    <th>Hành Động</th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -143,12 +137,7 @@
                                     <td th:text="${category.status}">Trạng Thái</td>
                                     <td><img th:src="@{${category.img}}" alt="Ảnh Danh Mục" width="50"></td>
                                     <td>
-                                        <div class="update-category">
-                                            <button
-                                                    th:attr="data-code=${category.categoryCode}"
-                                                    class="btn btn-primary" onclick="openUpdateCategoryForm()">Cập Nhật</button>
-
-                                        </div>
+                                        <button th:attr="data-code=${category.categoryCode}" class="btn btn-warning" onclick="openUpdateCategoryForm(event)">Sửa</button>
                                         <form th:action="@{/admin/delete-category/{categoryCode}(categoryCode=${category.categoryCode})}" method="post" style="display:inline;">
                                             <button type="submit" class="btn btn-danger">Xóa</button>
                                         </form>
@@ -166,62 +155,51 @@
 
 <th:block id="js">
     <script th:inline="javascript">
-        // Khởi tạo DataTable cho bảng danh mục
+        // Initialize DataTable
         $('#table-category').DataTable({
-            "paging": true,
-            "lengthChange": true,
-            "searching": true,
-            "ordering": true,
-            "info": true,
-            "autoWidth": false,
-            "responsive": true,
+            paging: true,
+            lengthChange: true,
+            searching: true,
+            ordering: true,
+            info: true,
+            autoWidth: false,
+            responsive: true,
         });
 
-        // Hàm bật/tắt form thêm danh mục
-        function toggleCategoryForm(formId = 'category-form') {
-            const form = document.getElementById(formId);
-            // Toggle display of form
+        // Toggle form visibility
+        function toggleCategoryForm() {
+            const form = document.getElementById('category-form');
             form.style.display = form.style.display === 'none' ? 'block' : 'none';
-
-            if (form.style.display === 'block') {
-                clearForm(formId);
-            }
         }
 
-
-        // Hàm làm sạch form thêm danh mục
-        function clearForm() {
-            document.getElementById('addCategoryForm').reset();
-        }
-
-
-        // Hàm làm sạch form thêm hoặc cập nhật danh mục
-        function clearForm(formId) {
-            document.getElementById(formId).reset();
-        }
-
-        // Hàm mở form cập nhật và điền dữ liệu danh mục
-        async function openUpdateCategoryForm() {
+        // Open form cập nhật Danh Mục
+        async function openUpdateCategoryForm(event) {
             const form = document.getElementById('update-category-form');
-            form.style.display = 'block';
-            const button = event.currentTarget;
-            const categoryCodeCode = button.getAttribute('data-code');
+            form.style.display = 'block'; // Hiển thị form
 
-            const response = await fetch(`/api/categories/${categoryCodeCode}`);
+            const button = event.currentTarget;
+            const categoryCode = button.getAttribute('data-code'); // Lấy Mã Danh Mục
+
+            // Fetch dữ liệu category từ API (hoặc endpoint phù hợp)
+            const response = await fetch(`/api/categories/${categoryCode}`);
             const categoryData = await response.json();
 
+            // Điền dữ liệu vào các trường trong form
             document.getElementById('update_category_code').value = categoryData.categoryCode;
             document.getElementById('update_category_name').value = categoryData.name;
             document.getElementById('update_status').value = categoryData.status;
             document.getElementById('update_creation_date').value = categoryData.date;
-            document.getElementById('update_edit_date').value = categoryData.editDate;
         }
 
-        // Hàm đóng form cập nhật
-        function closeUpdateCategoryForm() {
-            toggleCategoryForm('update-category-form');
+        // Đóng form cập nhật
+        function closeCategoryForm() {
+            const form = document.getElementById('update-category-form');
+            form.style.display = 'none'; // Ẩn form
         }
 
+        // function closeCategoryForm() {
+        //     document.getElementById('update-category-form').style.display = 'none';
+        // }
     </script>
 </th:block>
 

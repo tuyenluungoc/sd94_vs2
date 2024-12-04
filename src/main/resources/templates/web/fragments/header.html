@@ -21,9 +21,10 @@
                 <li><a href="/chatus">kênh thế giới</a></li>
             </ul>
             <div class="search-cart">
-                <input type="text" placeholder="Tìm kiếm">
-                <i class="fas fa-search"></i>
-                <a href="/own-shoppingcart"><i class="fas fa-shopping-cart"></i></a>
+                <form id="searchForm" action="/search" method="GET">
+                    <input type="text" name="query" placeholder="Tìm kiếm" id="searchInput">
+                    <button type="submit"><i class="fas fa-search"></i> Tìm kiếm</button>
+                </form>
             </div>
         </div>
         <div>

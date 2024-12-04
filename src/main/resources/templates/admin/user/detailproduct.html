@@ -6,9 +6,9 @@
     <th:block id="css">
         <!-- Thêm CSS tùy chỉnh nếu cần -->
     </th:block>
-  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 </head>
 <body>
 <div class="content-wrapper">
@@ -45,14 +45,14 @@
                     <form th:action="@{/admin/add-detailproduct}" method="post" enctype="multipart/form-data">
                         <div class="row">
                             <div class="col-md-6">
-                                    <label for="productCode">Chọn sản phẩm</label>
-                                    <select id="productCode" name="productCode" class="form-control" required>
-                                        <option value="" disabled selected>Chọn sản phẩm</option>
-                                        <option th:each="product : ${productList}"
-                                                th:value="${product.productCode}"
-                                                th:text="${product.name}">
-                                        </option>
-                                    </select>
+                                <label for="productCode">Chọn sản phẩm</label>
+                                <select id="productCode" name="productCode" class="form-control" required>
+                                    <option value="" disabled selected>Chọn sản phẩm</option>
+                                    <option th:each="product : ${productList}"
+                                            th:value="${product.productCode}"
+                                            th:text="${product.name}">
+                                    </option>
+                                </select>
 
                                 <label for="description" class="mt-3">Mô Tả</label>
                                 <textarea id="description" name="description" class="form-control"></textarea>
@@ -64,7 +64,6 @@
 
                                 <label for="price_vnd" class="mt-3">Giá (VND)</label>
                                 <input type="number" id="price_vnd" name="priceVND" class="form-control" step="0.01" required>
-
                             </div>
                         </div>
 
@@ -100,12 +99,11 @@
                                     <td th:text="${detailProduct.quantity}"></td>
                                     <td th:text="${detailProduct.priceVND}"></td>
                                     <td>
-                                      <button onclick="handleUpdate()" class="btn btn-warning"
-                                              data-toggle="modal"
-                                              th:attr="data-code=${detailProduct.detailedProductCode}"
-                                      >
-                                        Sửa
-                                      </button>
+                                        <button onclick="handleUpdate(event)" class="btn btn-warning"
+                                                data-toggle="modal"
+                                                th:attr="data-code=${detailProduct.detailedProductCode}">
+                                            Sửa
+                                        </button>
                                         <form th:action="@{/admin/delete-detailproduct/{detailedProductCode}(detailedProductCode=${detailProduct.detailedProductCode})}"
                                               method="post" style="display: inline;">
                                             <button type="submit" class="btn btn-danger">Xóa</button>
@@ -121,57 +119,54 @@
         </div>
     </section>
 
+    <!-- Modal Cập Nhật Chi Tiết Sản Phẩm -->
+    <div id="updateProductModal" class="modal fade" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Cập Nhật Chi Tiết Sản Phẩm</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="update-product-form" th:action="@{/admin/update-detailproduct}" method="post" enctype="multipart/form-data">
 
-  <div id="updateProductModal" class="modal fade" tabindex="-1" role="dialog">
-    <div class="modal-dialog modal-lg" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">Cập Nhật Chi Tiết Sản Phẩm</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <form id="update-product-form" th:action="@{/admin/update-detailproduct}" method="post" enctype="multipart/form-data">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <label for="productDetailCode">Mã chi tiết sản phẩm</label>
+                                <input type="text" readonly id="productDetailCode" name="productDetailCode" class="form-control w-100" required>
+                            </div>
+                            <div class="col-md-12">
+                                <label for="update_product_code" class="mt-3">Sản phẩm</label>
+                                <select id="update_product_code" name="productCode" class="form-control" required>
+                                    <option th:each="product : ${productList}"
+                                            th:value="${product.productCode}"
+                                            th:text="${product.name}"></option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="update_productDetail_price">Giá sản phẩm</label>
+                                <input type="number" id="update_productDetail_price" name="price" class="form-control w-100" required>
 
-            <div class="row">
-              <div class="col-md-12">
-                <label for="productDetailCode">Mã chi tiết sản phẩm</label>
-                <input type="text" readonly id="productDetailCode" name="productDetailCode" class="form-control w-100" required>
-              </div>
-              <div class="col-md-12">
-                <label for="update_product_code" class="mt-3">Sản phẩm</label>
-                <select id="update_product_code" name="productCode" class="form-control" required>
-                  <option th:each="product : ${productList}"
-                          th:value="${product.productCode}"
-                          th:text="${product.name}"></option>
-                </select>
-              </div>
-              <div class="col-md-6">
-                <label for="update_productDetail_price">Giá sản phẩm</label>
-                <input type="number" id="update_productDetail_price" name="price" class="form-control w-100" required>
+                                <label for="update_productDetail_quantity">Số lượng</label>
+                                <input type="number" id="update_productDetail_quantity" name="quantity" class="form-control w-100" required>
 
-                <label for="update_productDetail_quantity">Số lượng</label>
-                <input type="number" id="update_productDetail_quantity" name="quantity" class="form-control w-100" required>
+                            </div>
 
-              </div>
+                            <div class="col-md-12">
+                                <label for="update_productDetail_desc" class="mt-3">Mô Tả</label>
+                                <textarea id="update_productDetail_desc" name="desc" class="form-control"></textarea>
+                            </div>
+                        </div>
 
-              <div class="col-md-12">
-                <label for="update_productDetail_desc" class="mt-3">Mô Tả</label>
-                <textarea id="update_productDetail_desc" name="desc" class="form-control"></textarea>
-              </div>
+                        <div class="mt-4 d-flex justify-content-end">
+                            <button type="submit" class="btn btn-primary">Cập Nhật</button>
+                            <button type="button" class="btn btn-secondary ms-2" data-bs-dismiss="modal">Đóng</button>
+                        </div>
+                    </form>
+                </div>
             </div>
-
-            <div class="mt-4 d-flex justify-content-end">
-              <button type="submit" class="btn btn-primary">Cập Nhật</button>
-              <button type="button" class="btn btn-secondary ms-2" data-bs-dismiss="modal">Đóng</button>
-            </div>
-          </form>
         </div>
-      </div>
-      <div id="userInfo">
-        <!-- Dữ liệu sẽ được cập nhật qua JavaScript -->
-      </div>
     </div>
-  </div>
 </div>
 
 <th:block id="js">
@@ -188,20 +183,18 @@
             form.style.display = form.style.display === 'none' ? 'block' : 'none';
         }
 
-        async function handleUpdate() {
+        async function handleUpdate(event) {
             const button = event.currentTarget;
             const productDetailCode = button.getAttribute('data-code');
 
-
             const response = await fetch(`/api/product-details/${productDetailCode}`);
             const productDetailData = await response.json();
-            console.log(productDetailData);
 
             document.getElementById('productDetailCode').value = productDetailData.detailedProductCode;
             document.getElementById('update_product_code').value = productDetailData.product.productCode;
             document.getElementById('update_productDetail_price').value = productDetailData.priceVND;
             document.getElementById('update_productDetail_quantity').value = productDetailData.quantity;
-            document.getElementById('update_productDetail_desc').value= productDetailData.description;
+            document.getElementById('update_productDetail_desc').value = productDetailData.description;
 
             const myModal = new bootstrap.Modal(document.getElementById('updateProductModal'));
             myModal.show();
